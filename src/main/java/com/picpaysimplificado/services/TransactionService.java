@@ -3,6 +3,8 @@ package com.picpaysimplificado.services;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,13 @@ import com.picpaysimplificado.repositories.TransactionRepository;
 public class TransactionService {
 
     private UserService userService;
-
     private TransactionRepository transactionRepository;
-
     private RestTemplate restTemplate;
 
+    public TransactionService(TransactionRepository transactionRepository, UserService userService) {
+        this.transactionRepository = transactionRepository;
+        this.userService = userService;
+    }
 
     public void createTransaction(TransactionDTO transactionDTO) throws Exception{
         User sender = this.userService.findUserById(transactionDTO.senderId());
