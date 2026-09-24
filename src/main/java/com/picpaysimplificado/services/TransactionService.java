@@ -18,16 +18,21 @@ import com.picpaysimplificado.repositories.TransactionRepository;
 @Service 
 public class TransactionService {
 
+    @Autowired 
     private UserService userService;
+    @Autowired 
     private TransactionRepository transactionRepository;
+    @Autowired 
     private RestTemplate restTemplate;
+    @Autowired
+    private NotificationService notificationService;
 
     public TransactionService(TransactionRepository transactionRepository, UserService userService) {
         this.transactionRepository = transactionRepository;
         this.userService = userService;
     }
 
-    public void createTransaction(TransactionDTO transactionDTO) throws Exception{
+    public Transaction createTransaction(TransactionDTO transactionDTO) throws Exception{
         User sender = this.userService.findUserById(transactionDTO.senderId());
         User receiver = this.userService.findUserById(transactionDTO.receiverId());
 
@@ -35,7 +40,7 @@ public class TransactionService {
         
         boolean isAuthorized = this.authorizeTransaction(sender, transactionDTO.value());
         if(!isAuthorized){
-            throw new Exception("Transação não aturoizada");
+            throw new Exception("Transação não autoirzada");
         }
 
         Transaction transaction = new Transaction();
@@ -50,14 +55,19 @@ public class TransactionService {
         transactionRepository.save(transaction);
         userService.saveUser(sender);
         userService.saveUser(receiver);
+
+        this.notificationService.sendNotification(sender, "Transação realizada cpm sucesso");
+        this.notificationService.sendNotification(receiver, "Transação recebida cpm sucesso");
+
+        return transaction;
     }
 
     public boolean authorizeTransaction(User sender, BigDecimal value){
         ResponseEntity<Map> authorizarionResponse = restTemplate.getForEntity("https://util.devi.tools/api/v2/authorize", Map.class);
 
         if(authorizarionResponse.getStatusCode() == HttpStatus.OK){
-            String message = (String)authorizarionResponse.getBody().get("message");
-            return "Autorizado".equalsIgnoreCase(message);
+            String message = (String)authorizarionResponse.getBody().get("status");
+            return "success".equalsIgnoreCase(message);
         }else return false;
     }
 

@@ -19,12 +19,8 @@ import com.picpaysimplificado.services.UserService;
 @RequestMapping("/users")
 public class UserController {
     
+    @Autowired 
     private UserService userService;
-
-    // Construtor responsável por injetar o UserService automaticamente
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody UserDTO user) {
