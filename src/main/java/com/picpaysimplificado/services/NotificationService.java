@@ -14,8 +14,8 @@ public class NotificationService {
     private RestTemplate restTemplate;
 
     public void sendNotification(User user, String message) throws Exception{
-        String email = user.getEmail();
-        NotificationDTO notificationRequest = new NotificationDTO(email, message);
+       // String email = user.getEmail();
+       // NotificationDTO notificationRequest = new NotificationDTO(email, message);
 
     //     ResponseEntity<String> notificationResponse = restTemplate.postForEntity("https://util.devi.tools/api/v1/notify", notificationRequest, String.class);
 

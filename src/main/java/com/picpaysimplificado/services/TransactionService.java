@@ -14,6 +14,7 @@ import com.picpaysimplificado.domain.transaction.Transaction;
 import com.picpaysimplificado.domain.user.User;
 import com.picpaysimplificado.dtos.TransactionDTO;
 import com.picpaysimplificado.repositories.TransactionRepository;
+import com.picpaysimplificado.services.AuthorizationService;
 
 @Service 
 public class TransactionService {
@@ -27,12 +28,6 @@ public class TransactionService {
     @Autowired
     private AuthorizationService authService;
 
-
-    public TransactionService(TransactionRepository transactionRepository, UserService userService) {
-        this.transactionRepository = transactionRepository;
-        this.userService = userService;
-    }
-
     public Transaction createTransaction(TransactionDTO transactionDTO) throws Exception{
         User sender = this.userService.findUserById(transactionDTO.senderId());
         User receiver = this.userService.findUserById(transactionDTO.receiverId());
@@ -41,7 +36,7 @@ public class TransactionService {
         
         boolean isAuthorized = this.authService.authorizeTransaction(sender, transactionDTO.value());
         if(!isAuthorized){
-            throw new Exception("Transação não autoirzada");
+            throw new Exception("Transação não autorizada");
         }
 
         Transaction transaction = new Transaction();
@@ -57,8 +52,8 @@ public class TransactionService {
         userService.saveUser(sender);
         userService.saveUser(receiver);
 
-        this.notificationService.sendNotification(sender, "Transação realizada cpm sucesso");
-        this.notificationService.sendNotification(receiver, "Transação recebida cpm sucesso");
+        this.notificationService.sendNotification(sender, "Transação realizada com sucesso");
+        this.notificationService.sendNotification(receiver, "Transação recebida com sucesso");
 
         return transaction;
     }
